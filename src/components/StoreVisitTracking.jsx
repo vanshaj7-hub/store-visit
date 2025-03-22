@@ -163,7 +163,7 @@ const vizRef = useRef(null);
     }
   ];
   function getAI(imageurl) {
-    const url = "https://banner-backend-85801868683.us-central1.run.app/api/get_banner_data";
+    const url = "https://storevisualservice-test.onrender.com/api/banner_data";
     const data = {
       "image_link": imageurl
     };
@@ -1171,7 +1171,7 @@ useEffect(() => {
                 </div>
                 <div className="card-info-row">
                   <span className="card-info-value">{image.metadata.bannerData?.brand || "N/A"}</span>
-                  <span className="card-info-value">{image.metadata.bannerData?.merchandise || "N/A"}</span>
+                  <span className="card-info-value">{a.visual || "N/A"}</span>
                   <span className="card-info-value">{image.metadata.bannerData?.type || "N/A"}</span>
                   <span className="card-info-value">{parseFloat(a.measurement).toFixed(3) || "N/A"}</span>
                 </div>
