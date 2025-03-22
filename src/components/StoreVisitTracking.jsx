@@ -26,6 +26,7 @@ const [square, setSquare] = useState();
 const [centerCoord, setCenterCoord] = useState([]);
 const [expandedCards, setExpandedCards] = useState({});
 const distanceDisplayRef = useRef(null);
+const [perpendicularCoord, setPerpendicularCoord] = useState([]);
 
   const toggleCard = (index) => {
     setExpandedCards((prev) => ({
@@ -318,6 +319,38 @@ const vizRef = useRef(null);
       pointElement.style.transform = "translate(-50%, -50%) scale(1)";
     }, 10);
   }
+  function getPerpendicularDistanceAndPoint(x, z, x1, z1, x2, z2) {
+    // Vector from (x1,z1) to (x2,z2)
+    const edgeVectorX = x2 - x1;
+    const edgeVectorZ = z2 - z1;
+    
+    // Vector from (x1,z1) to point (x,z)
+    const pointVectorX = x - x1;
+    const pointVectorZ = z - z1;
+    
+    // Length of the edge squared
+    const edgeLengthSquared = edgeVectorX * edgeVectorX + edgeVectorZ * edgeVectorZ;
+    
+    // If edge is just a point, return distance to that point
+    if (edgeLengthSquared === 0) {
+        const distance = Math.sqrt(pointVectorX * pointVectorX + pointVectorZ * pointVectorZ);
+        return { distance, point: [x1, z1] };
+    }
+    
+    // Calculate projection ratio (t) of point onto edge
+    const t = Math.max(0, Math.min(1, 
+        (pointVectorX * edgeVectorX + pointVectorZ * edgeVectorZ) / edgeLengthSquared
+    ));
+    
+    // Calculate the perpendicular point on the edge
+    const projX = x1 + t * edgeVectorX;
+    const projZ = z1 + t * edgeVectorZ;
+    
+    // Calculate the distance
+    const distance = Math.sqrt((x - projX) ** 2 + (z - projZ) ** 2);
+    
+    return { distance, point: [projX, projZ] };
+}
   function find_nearest(x, z,diagonal,vizElement) {
     // x=(x/100)*500;
     // z=(z/100)*250;
@@ -326,8 +359,7 @@ const vizRef = useRef(null);
       console.error("No structures found!");
       return;
   }
-  
-  let nearestQuadrilateral = null;
+  let perpendicularPoint=null
   let nearest=null
   let minDistance = Infinity;
   
@@ -353,23 +385,29 @@ const vizRef = useRef(null);
   // });
   structures.forEach(structure => {
     let minEdgeDistance = Infinity;
+    let closestPointOnEdge = null; 
   
     for (let i = 0; i < structure.coordinates.length; i++) {
         // Get two consecutive points forming an edge
         let [x1, z1] = structure.coordinates[i];
         let [x2, z2] = structure.coordinates[(i + 1) % 4];
-  
+
+        let result = getPerpendicularDistanceAndPoint(x, z, x1, z1, x2, z2);
+            let distance = result.distance;
+            let point = result.point;
         // Calculate perpendicular distance from (x, z) to this edge
-        let distance = getPerpendicularDistance(x, z, x1, z1, x2, z2);
+        // let distance = getPerpendicularDistance(x, z, x1, z1, x2, z2);
   
         if (distance < minEdgeDistance) {
             minEdgeDistance = distance;
+            closestPointOnEdge = point;
         }
     }
     // Update nearest quadrilateral based on the smallest perpendicular distance
     if (minEdgeDistance < minDistance) {
         minDistance = minEdgeDistance;
         nearest = structure;
+        perpendicularPoint = closestPointOnEdge;
         setNearestStructure(structure);
         // nearestStructure = structure;
     }
@@ -381,6 +419,7 @@ const vizRef = useRef(null);
     }
   
     console.log("Nearest Structure:", nearest.name);
+    console.log("Perpendicular Point:", perpendicularPoint);
     if(diagonal==0){
       // diagonal=2;
     }
@@ -400,7 +439,7 @@ const vizRef = useRef(null);
       return updated;
     });
     // setCenterCoord(center);
-
+    setPerpendicularCoord((prev)=>[perpendicularPoint,...prev]);
     console.log("CenterCoord:", centerCoord);
     const squareCoordinates = [
       [center[0] - squareSide / 2, center[1] - squareSide / 2], // Top-left
@@ -623,7 +662,19 @@ useEffect(() => {
 }, [squareCoordinates])
 
   // Refs
+useEffect(()=>{
+  console.log(vizDimensions.width,vizDimensions.height);
+      setCenterX(vizDimensions.width / 2);
+      setCenterZ(vizDimensions.height / 2);
+     const centerx = vizDimensions.width / 2;
+     const centerz = vizDimensions.height / 2;
+     
+    //  const newQuad=
 
+
+
+
+},[perpendicularCoord])
 
 // Add state for the visualization dimensions
 
@@ -654,7 +705,7 @@ useEffect(() => {
   // Connect to Socket.IO when component mounts
   useEffect(() => {
     // socketRef.current = io();
-    socketRef.current = io("https://storevisualser-serv.onrender.com/");
+    socketRef.current = io("https://storevisualservice-test.onrender.com/");
     socketRef.current.on("connect", () => {
       console.log("Connected to server with ID:", socketRef.current.id);
     });
@@ -759,7 +810,7 @@ useEffect(() => {
       socketRef.current.emit("clear-coordinates");
       socketRef.current.emit("clear-images");
     }
-    fetch("https://storevisualser-serv.onrender.com/api/all", {
+    fetch("https://storevisualservice-test.onrender.com/api/all", {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -796,7 +847,7 @@ useEffect(() => {
 
     const timestamp = Date.now();
 
-    fetch("https://storevisualser-serv.onrender.com/api/coordinates", {
+    fetch("https://storevisualservice-test.onrender.com/api/coordinates", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -837,7 +888,7 @@ useEffect(() => {
           const randomType = types[Math.floor(Math.random() * types.length)];
 
           // First post the image
-          fetch("https://storevisualser-serv.onrender.com/api/image", {
+          fetch("https://storevisualservice-test.onrender.com/api/image", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -854,7 +905,7 @@ useEffect(() => {
               console.log("Image Response:", data);
               
               // Then post the banner data
-              fetch("https://storevisualser-serv.onrender.com/api/banner_data", {
+              fetch("https://storevisualservice-test.onrender.com/api/banner_data", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -1102,8 +1153,8 @@ useEffect(() => {
           {imageHistory.length > 0 ? (
         imageHistory.map((image, index) => {
           let a=parseImageUrl(image.url);
-          let b=getAI(image.url);
-          console.log("AI:",b);
+          // let b=getAI(image.url);
+          // console.log("AI:",b);
           return(
           <div key={index} className={`card ${image.active ? "active" : ""}`}>
             <div className="card-image-container">
