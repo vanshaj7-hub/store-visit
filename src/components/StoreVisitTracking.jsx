@@ -28,7 +28,8 @@ const [expandedCards, setExpandedCards] = useState({});
 const distanceDisplayRef = useRef(null);
 const [perpendicularCoord, setPerpendicularCoord] = useState([]);
 const [selectedImage, setSelectedImage] = useState();
-
+const [pstructures, setPstructures] = useState([]);
+const [pPolygons, setPPolygons] = useState([]);
   const toggleCard = (index) => {
     setExpandedCards((prev) => ({
       ...prev,
@@ -164,32 +165,24 @@ const vizRef = useRef(null);
     }
   ];
   function getAI(imageurl) {
-    const url = "https://storevisualservice-test.onrender.com/api/banner_data";
-    const data = {
-      "image_link": imageurl
-    };
-  
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(result => {
-        console.log("AI data:", result);
-        // Do something with the result
-        return result;
-      })
-      .catch(error => {
-        console.error("Error fetching banner data:", error);
+          const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      const raw = JSON.stringify({
+        "image_link": imageurl
       });
+
+      const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow"
+      };
+
+      fetch("https://banner-backend-85801868683.us-central1.run.app/api/get_banner_data", requestOptions)
+        .then((response) => response.text())
+        .then((result) => {console.log(result);return result})
+        .catch((error) => console.error(error));
   }
   
 // console.log(structures);
@@ -281,7 +274,7 @@ const vizRef = useRef(null);
     // If photo was captured at this point, add the photo-captured class
     if (coord.photoCapture === 1) {
       const vizElement = document.getElementById("visualization");
-      let trial=find_nearest(coord.x,coord.z,coord.distance,vizElement);
+      let trial=find_nearest(coord.x,coord.z,coord.distance,vizElement,coord.l,coord.b);
       console.log(trial);
       
 
@@ -352,7 +345,9 @@ const vizRef = useRef(null);
     
     return { distance, point: [projX, projZ] };
 }
-  function find_nearest(x, z,diagonal,vizElement) {
+  function find_nearest(x, z,diagonal,vizElemen,l,b) {
+    console.log("images:",imageHistory);
+
     // x=(x/100)*500;
     // z=(z/100)*250;
     console.log(x,z);
@@ -439,8 +434,14 @@ const vizRef = useRef(null);
       console.log("Updated State:", updated);
       return updated;
     });
+
+    setPerpendicularCoord((prev) => {
+      console.log("Previous State:", prev);
+      const updated = [perpendicularPoint, ...prev];
+      console.log("Updated State:", updated);
+      return updated;
+    });
     // setCenterCoord(center);
-    setPerpendicularCoord((prev)=>[perpendicularPoint,...prev]);
     console.log("CenterCoord:", centerCoord);
     const squareCoordinates = [
       [center[0] - squareSide / 2, center[1] - squareSide / 2], // Top-left
@@ -448,6 +449,27 @@ const vizRef = useRef(null);
       [center[0] + squareSide / 2, center[1] + squareSide / 2], // Bottom-right
       [center[0] - squareSide / 2, center[1] + squareSide / 2]  // Bottom-left
     ];
+    if(l==0 && b==0)
+    {
+      l=5;
+      b=5;
+    }
+    l=l*10;
+    b=b*10;
+    const pcoordinates=[
+      [perpendicularPoint[0] - l/2, perpendicularPoint[1] - b/2], // Top-left
+      [perpendicularPoint[0] - l/2, perpendicularPoint[1] + b/2],
+      [perpendicularPoint[0] + l/2, perpendicularPoint[1] + b/2], // Bottom-right
+      [perpendicularPoint[0] + l/2, perpendicularPoint[1] - b/2], // Top-right
+       // Bottom-left
+
+    ]
+
+    setPstructures(prevStructures => [
+      ...prevStructures,
+      { coordinates: pcoordinates }
+    ]);
+    console.log("pcoordinates:",pcoordinates);
   
     console.log("Square Coordinates:", squareCoordinates);
     // setSquareCoordinates(squareCoordinates);
@@ -511,7 +533,7 @@ const vizRef = useRef(null);
    }
    setSquare(newSquare);
   }
-  function renderAllImages() {
+  function renderAllImages(history) {
     console.log("render images")
     console.log(imageHistory);
   }
@@ -679,6 +701,7 @@ const vizRef = useRef(null);
      const centerx = vizDimensions.width / 2;
      const centerz = vizDimensions.height / 2;
 
+
     const newPolygons = structures.map((structure) => {
       let pathData = "";
       structure.coordinates.forEach((coord, index) => {
@@ -738,15 +761,40 @@ useEffect(()=>{
   console.log(vizDimensions.width,vizDimensions.height);
       setCenterX(vizDimensions.width / 2);
       setCenterZ(vizDimensions.height / 2);
-     const centerx = vizDimensions.width / 2;
-     const centerz = vizDimensions.height / 2;
-     
+      const centerx = vizDimensions.width / 2;
+      const centerz = vizDimensions.height / 2;
+
+      const newPolygons = pstructures.map((structure) => {
+        let pathData = "";
+        structure.coordinates.forEach((coord, index) => {
+          const screenX = centerx + coord[0];
+          const screenZ = centerz + coord[1];
+  
+          pathData += index === 0 ? `M ${screenX} ${screenZ} ` : `L ${screenX} ${screenZ} `;
+        });
+  
+        pathData += "Z"; // Close the polygon
+  
+        const centerCoord = getPolygonCenter(structure.coordinates);
+        const textX = centerx + centerCoord[0];
+        const textY = centerz + centerCoord[1];
+  
+        return {
+          id: '1',
+          name: 'test',
+          type: 'counter',
+          pathData,
+          textX,
+          textY,
+          color: 'red',
+        };
+      });
     //  const newQuad=
 
 
+setPPolygons(newPolygons);
 
-
-},[perpendicularCoord])
+},[pstructures])
 
 // Add state for the visualization dimensions
 
@@ -805,7 +853,7 @@ useEffect(() => {
       console.log("Received image history:", history);
       setImageHistory(history);
       updateImagePointMap();
-      renderAllImages();
+      renderAllImages(history);
     });
   
     // Receive new coordinate
@@ -910,7 +958,8 @@ useEffect(() => {
     let z = Math.round((Math.random() * 200 - 100) * 100) / 100;
     x=(x/100)*500;
     z=(z/100)*250;
-
+    let l=0;
+    let b=0;
     // Increase total distance by a small random amount
     // totalDistance += Math.random() * 0.1;
     setTotalDistance(totalDistance+Math.random() * 0.1);
@@ -931,6 +980,9 @@ useEffect(() => {
           x,
           z,
           photoCapture,
+          l,
+          b,
+
         ],
       }),
     })
@@ -941,12 +993,17 @@ useEffect(() => {
         // If photo was captured, send a test image URL
         if (photoCapture === 1) {
           // Use a random selection of image URLs for testing
-          const testImages = [
-            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FGoogle_Poster_Phone_0.9244657.png?alt=media&token=7affeac9-1f60-42b1-9e1f-d2c65a348da8",
-            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FApple_Poster_Phone.png?alt=media&token=7f75f533-e249-44e3-8056-adca5caef03d",
-            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FSamsung_Display_Tablet.png?alt=media&token=12345678",
-            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FLGE_Banner_TV.png?alt=media&token=87654321",
-          ];
+          // const testImages = [
+          //   "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FGoogle_Poster_Phone_0.9244657.png?alt=media&token=7affeac9-1f60-42b1-9e1f-d2c65a348da8",
+          //   "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FApple_Poster_Phone.png?alt=media&token=7f75f533-e249-44e3-8056-adca5caef03d",
+          //   "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FSamsung_Display_Tablet.png?alt=media&token=12345678",
+          //   "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FLGE_Banner_TV.png?alt=media&token=87654321",
+          // ];
+          const testImages=[
+            // "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FSamsung_DummyDevice_Watch_0_0.png?alt=media&token=57327a02-caf0-4bd5-a13c-7dcb3604f497"
+          
+            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2Fgoogle_dummy_phone_9_5.jpg?alt=media&token=8c13c2aa-dd7e-48c0-9353-607951ac7f39"
+          ]
 
           const imageUrl =
             testImages[Math.floor(Math.random() * testImages.length)];
@@ -1151,11 +1208,23 @@ useEffect(() => {
     ))}
   </svg>
 )}
+            {isPathVisible &&  (
+  <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}>
+    {pPolygons.map((polygon) => (
+      <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}>
+        <path d={polygon.pathData} fill={polygon.color} stroke="#000" strokeWidth="2" fillOpacity="0.5" />
+        <text x={polygon.textX} y={polygon.textY} textAnchor="middle" dominantBaseline="middle" fontSize="12px" fill="#000" fontWeight="bold">
+          {polygon.name}
+        </text>
+      </g>
+    ))}
+  </svg>
+)}
 
               {centerCoord&& isStructureVisible &&(
                 perpendicularCoord.map((center,index)=>{
                   let a=parseImageUrl(imageHistory[index]?.url);
-                  console.log("parsed:",a);
+                  // console.log("parsed:",a);
                   return(
                   <>
                   {/* <div
@@ -1275,9 +1344,9 @@ useEffect(() => {
                     <img src={star} alt="Icon" className="extra-icon" />
                     <span className="extra-title" style={{fontWeight:400,color:'black'}}>AI Analysis</span>
                   </div>
-                  <p class="extra-description">
+                  {/* <p class="extra-description">
              Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
-         </p>
+         </p> */}
          <p class="extra-details">
              <strong>Brand:</strong> {image.metadata.bannerData?.brand || "N/A"} <br/>
              <strong>Position:</strong> {image.metadata.bannerData?.position || "N/A"} <br/>
