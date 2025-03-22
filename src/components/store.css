@@ -130,7 +130,7 @@
             position: absolute;
             width: 7px;
             height: 7px;
-            background-color: red;
+            background-color: #717AEA;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
