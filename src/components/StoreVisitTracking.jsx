@@ -1145,7 +1145,8 @@ useEffect(() => {
             paddingLeft: '10px',
             paddingTop:'10px',
             fontWeight:'bold', 
-            boxShadow: '0px 4px 6px -4px rgba(0, 0, 0, 0.1)'
+            boxShadow: '0px 4px 6px -4px rgba(0, 0, 0, 0.1)',
+            color:'black',
           }}>
             Reports
           </div>
@@ -1164,7 +1165,7 @@ useEffect(() => {
               <div className="card-info">
                 <div className="card-info-row">
                   <span className="card-info-label">Brand</span>
-                  <span className="card-info-label">Position</span>
+                  <span className="card-info-label">Merchandise</span>
                   <span className="card-info-label">Product</span>
                   <span className="card-info-label">Measurement</span>
                 </div>
