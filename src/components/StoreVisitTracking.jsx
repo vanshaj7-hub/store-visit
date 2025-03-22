@@ -1259,8 +1259,8 @@ useEffect(() => {
                 </div>
                 <div className="card-info-row">
                   <span className="card-info-value">{image.metadata.bannerData?.brand || "N/A"}</span>
-                  <span className="card-info-value">{a.visual || "N/A"}</span>
-                  <span className="card-info-value">{image.metadata.bannerData?.type || "N/A"}</span>
+                  <span className="card-info-value">{a.merchandise || "N/A"}</span>
+                  <span className="card-info-value">{a.product || "N/A"}</span>
                   <span className="card-info-value">{parseFloat(a.measurementL).toFixed(3)}&times;{parseFloat(a.measurementB).toFixed(3)}</span>
                 </div>
               </div>
