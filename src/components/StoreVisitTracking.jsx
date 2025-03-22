@@ -515,9 +515,93 @@ const vizRef = useRef(null);
     console.log("render images")
     console.log(imageHistory);
   }
+  // function parseImageUrl(url) {
+  //   try {
+  //     // First, decode the URL to handle any encoded characters
+  //     const decodedUrl = decodeURIComponent(url);
+      
+  //     // Extract the filename portion from the URL
+  //     let filename = null;
+  //     if (decodedUrl.includes('/o/ARTracker%2F')) {
+  //       filename = decodedUrl.split('/o/ARTracker%2F')[1];
+  //     } else if (decodedUrl.includes('/o/ARTracker/')) {
+  //       filename = decodedUrl.split('/o/ARTracker/')[1];
+  //     }
+      
+  //     if (filename) {
+  //       // Remove the query parameters
+  //       filename = filename.split('?')[0];
+        
+  //       // Split the filename by underscores
+  //       const parts = filename.split('_');
+        
+  //       // Handle case when there are no underscores in the filename
+  //       if (parts.length === 1) {
+  //         // Try to extract information from single part
+  //         const nameParts = parts[0].replace(/\.png$/, '').split(/(?=[A-Z])/);
+  //         if (nameParts.length > 2) {
+  //           return {
+  //             brand: nameParts[0] || "Unknown",
+  //             visual: nameParts[1] || "Unknown",
+  //             product: nameParts[2] || "Unknown",
+  //             measurement: "N/A"
+  //           };
+  //         }
+  //       }
+        
+  //       // Extract components based on position
+  //       const brand = parts[0] || "Unknown";
+        
+  //       // Handle "Dummy device" which contains a space
+  //       let visual = parts[1] || "Unknown";
+  //       let productIndex = 2;
+        
+  //       // If visual has a space that was encoded in the URL, it might span multiple parts
+  //       if (parts.length > 2 && parts[2] && !parts[2].toLowerCase().includes("phone") && 
+  //           !parts[2].toLowerCase().includes("tablet") && !parts[2].toLowerCase().includes("tv")) {
+  //         visual = visual + " " + parts[2];
+  //         productIndex = 3;
+  //       }
+        
+  //       // Get product and remove .png extension if it exists
+  //       let product = parts[productIndex] || "Unknown";
+  //       product = product.replace(/\.png$/i, '');
+        
+  //       // Check if we have a measurement (next part after product before .png)
+  //       let measurement = "N/A";
+  //       if (parts.length > productIndex + 1) {
+  //         // Extract measurement without the .png extension
+  //         measurement = parts[productIndex + 1].replace(/\.png$/i, '');
+  //       }
+        
+  //       return {
+  //         brand,
+  //         visual,
+  //         product,
+  //         measurement
+  //       };
+  //     }
+  
+  //     // Fallback if parsing fails
+  //     return {
+  //       brand: "Unknown",
+  //       visual: "Unknown",
+  //       product: "Unknown",
+  //       measurement: "N/A"
+  //     };
+  //   } catch (error) {
+  //     console.error("Error parsing image URL:", error);
+  //     return {
+  //       brand: "Unknown",
+  //       visual: "Unknown",
+  //       product: "Unknown",
+  //       measurement: "N/A"
+  //     };
+  //   }
+  // }
   function parseImageUrl(url) {
     try {
-      // First, decode the URL to handle any encoded characters
+      // Decode the URL to handle any encoded characters
       const decodedUrl = decodeURIComponent(url);
       
       // Extract the filename portion from the URL
@@ -528,76 +612,63 @@ const vizRef = useRef(null);
         filename = decodedUrl.split('/o/ARTracker/')[1];
       }
       
-      if (filename) {
-        // Remove the query parameters
-        filename = filename.split('?')[0];
-        
-        // Split the filename by underscores
-        const parts = filename.split('_');
-        
-        // Handle case when there are no underscores in the filename
-        if (parts.length === 1) {
-          // Try to extract information from single part
-          const nameParts = parts[0].replace(/\.png$/, '').split(/(?=[A-Z])/);
-          if (nameParts.length > 2) {
-            return {
-              brand: nameParts[0] || "Unknown",
-              visual: nameParts[1] || "Unknown",
-              product: nameParts[2] || "Unknown",
-              measurement: "N/A"
-            };
-          }
-        }
-        
-        // Extract components based on position
-        const brand = parts[0] || "Unknown";
-        
-        // Handle "Dummy device" which contains a space
-        let visual = parts[1] || "Unknown";
-        let productIndex = 2;
-        
-        // If visual has a space that was encoded in the URL, it might span multiple parts
-        if (parts.length > 2 && parts[2] && !parts[2].toLowerCase().includes("phone") && 
-            !parts[2].toLowerCase().includes("tablet") && !parts[2].toLowerCase().includes("tv")) {
-          visual = visual + " " + parts[2];
-          productIndex = 3;
-        }
-        
-        // Get product and remove .png extension if it exists
-        let product = parts[productIndex] || "Unknown";
-        product = product.replace(/\.png$/i, '');
-        
-        // Check if we have a measurement (next part after product before .png)
-        let measurement = "N/A";
-        if (parts.length > productIndex + 1) {
-          // Extract measurement without the .png extension
-          measurement = parts[productIndex + 1].replace(/\.png$/i, '');
-        }
-        
-        return {
-          brand,
-          visual,
-          product,
-          measurement
-        };
+      if (!filename) {
+        return defaultResponse();
       }
-  
-      // Fallback if parsing fails
+      
+      // Remove the query parameters
+      filename = filename.split('?')[0];
+      
+      // Extract everything before .png
+      const nameWithoutExtension = filename.split('.png')[0];
+      
+      // Split the filename by underscores
+      const parts = nameWithoutExtension.split('_');
+      
+      // Basic structure validation - need at least 3 parts (brand, merchandise, product)
+      if (parts.length < 3) {
+        return defaultResponse();
+      }
+      
+      // Extract the values
+      const brand = parts[0] || "Unknown";
+      const merchandise = parts[1] || "Unknown";
+      const product = parts[2] || "Unknown";
+      
+      // Extract measurements if they exist
+      let measurementL = "N/A";
+      let measurementB = "N/A";
+      
+      if (parts.length > 3) {
+        measurementL = parts[3] || "N/A";
+      }
+      
+      if (parts.length > 4) {
+        measurementB = parts[4] || "N/A";
+      }
+      
       return {
-        brand: "Unknown",
-        visual: "Unknown",
-        product: "Unknown",
-        measurement: "N/A"
+        brand,
+        merchandise,
+        product,
+        measurementL,
+        measurementB
       };
     } catch (error) {
       console.error("Error parsing image URL:", error);
-      return {
-        brand: "Unknown",
-        visual: "Unknown",
-        product: "Unknown",
-        measurement: "N/A"
-      };
+      return defaultResponse();
     }
+  }
+  
+  // Default response function for consistent fallback
+  function defaultResponse() {
+    return {
+      brand: "Unknown",
+      merchandise: "Unknown",
+      product: "Unknown",
+      measurementL: "N/A",
+      measurementB: "N/A"
+    };
   }
   useEffect(() => {
 
@@ -1139,7 +1210,7 @@ useEffect(() => {
                         {/* Measurement text */}
                         <div className="measurement-text">
                           <span className="measurement-label">Measurement:</span>
-                          <span className="measurement-value">{parseFloat(a.measurement).toFixed(3)}</span>
+                          <span className="measurement-value">{parseFloat(a.measurementL).toFixed(1)}&times;{parseFloat(a.measurementB).toFixed(3)}</span>
                         </div>
                         
                         {/* Triangle pointer */}
@@ -1190,7 +1261,7 @@ useEffect(() => {
                   <span className="card-info-value">{image.metadata.bannerData?.brand || "N/A"}</span>
                   <span className="card-info-value">{a.visual || "N/A"}</span>
                   <span className="card-info-value">{image.metadata.bannerData?.type || "N/A"}</span>
-                  <span className="card-info-value">{parseFloat(a.measurement).toFixed(3) || "N/A"}</span>
+                  <span className="card-info-value">{parseFloat(a.measurementL).toFixed(3)}&times;{parseFloat(a.measurementB).toFixed(3)}</span>
                 </div>
               </div>
 
