@@ -967,7 +967,7 @@ useEffect(() => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <img src={logo} alt="Logo" style={{ height: '40px', marginRight: '10px' }} />
-          <h1 style={{ margin: 0 }}>Store Visit Tracking</h1>
+          <h1 style={{ margin: 0,color:'black',fontWeight:500 }}>Store Visit Tracking</h1>
         </div>
         <div className="control-panel" style={{ textAlign: 'right' }}>
           <div>
@@ -1021,7 +1021,7 @@ useEffect(() => {
       {/* Distance Display */}
       <div className="info-display">
         <span className="distance-box">
-          <span id="distance">Distance: {totalDistance.toFixed(2)} Meters</span>
+          <span id="distance" style={{color:'black',fontWeight:500}}>Distance: {totalDistance.toFixed(2)} Meters</span>
           {/* <span id='distanceDisplay'>Distance: 0.00</span> */}
           {/* <span ref={distanceDisplayRef}>Distance: 0.00</span>  */}
           <span className="arrow">◀</span>
