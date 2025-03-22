@@ -1069,7 +1069,7 @@ useEffect(() => {
 )}
 
 {centerCoord&& isStructureVisible &&(
-  centerCoord.map((center,index)=>{
+  perpendicularCoord.map((center,index)=>{
     let a=parseImageUrl(imageHistory[index]?.url);
     console.log("parsed:",a);
     return(
@@ -1112,7 +1112,7 @@ useEffect(() => {
       {/* Main content - simulated phone display with tooltip */}
       {/* <div className="phone-display"> */}
         {/* Tooltip */}
-        <div className="tooltip" style={{position:'absolute',top:centerZ+center[1]+10  ,left:centerX+center[0]}}>
+        <div className="tooltip" style={{position:'absolute',top:centerZ+center[1]  ,left:centerX+center[0]}}>
           <div className="imagetooltip-container">
             <img 
               src={imageHistory[index]?.url} 
