@@ -1210,7 +1210,7 @@ useEffect(() => {
                         {/* Measurement text */}
                         <div className="measurement-text">
                           <span className="measurement-label">Measurement:</span>
-                          <span className="measurement-value">{parseFloat(a.measurementL).toFixed(1)}&times;{parseFloat(a.measurementB).toFixed(3)}</span>
+                          <span className="measurement-value">{parseFloat(a.measurementL).toFixed(1)}&times;{parseFloat(a.measurementB).toFixed(1)}</span>
                         </div>
                         
                         {/* Triangle pointer */}
