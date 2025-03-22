@@ -5,8 +5,16 @@ import logo from '../assets/logo.png'
 import star from '../assets/star.png'
 const StoreVisitTracking = () => {
   // State variables
+  const [modalImage, setModalImage] = useState(null);
   const [distance, setDistance] = useState(0);
   const [points, setPoints] = useState([]);
+  const openModal = (imageUrl) => {
+    setModalImage(imageUrl);
+  };
+
+  const closeModal = () => {
+    setModalImage(null);
+  };
   const [isStructureVisible, setIsStructureVisible] = useState(false);
   const [isPathVisible, setIsPathVisible] = useState(true);
   const [images, setImages] = useState([]);
@@ -962,7 +970,8 @@ useEffect(() => {
     let b=0;
     // Increase total distance by a small random amount
     // totalDistance += Math.random() * 0.1;
-    setTotalDistance(totalDistance+Math.random() * 0.1);
+// Increase total distance by a small random amount
+  setTotalDistance(prev => prev + Math.random() * 0.1);
 
     // Randomly include a photo capture (1) or not (0)
     const photoCapture = Math.random() > 0.5 ? 1 : 0;
@@ -1094,150 +1103,182 @@ useEffect(() => {
   }
 }, [selectedImage]); 
 
-  return (
-    <div className="container" style={{ backgroundColor: '#EFF4FE' }}>
-      {/* Header Section */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        backgroundColor: '#EFF4FE', 
-        padding: '5px', 
-        paddingLeft: '15px', 
-        width: '100%' 
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <img src={logo} alt="Logo" style={{ height: '40px', marginRight: '10px' }} />
-          <h1 style={{ margin: 0,color:'black',fontWeight:500 }}>Store Visit Tracking</h1>
-        </div>
-        <div className="control-panel" style={{ textAlign: 'right' }}>
-          <div>
-            <button 
-              id="startButton" 
-              type="button" 
-              onClick={(e) => {
-                createRipple(e);
-                handleStartButton();
-              }}
-            >
-              Start
-            </button>
-            <button 
-              id="clearButton" 
-              type="button" 
-              className="clear"
-              onClick={(e) => {
-                createRipple(e);
-                handleClearButton();
-              }}
-            >
-              Clear All
-            </button>
-            
-            <label className="toggle-container">
-              <span>View path</span>
-              <input 
-                type="checkbox" 
-                id="pathToggle" 
-                checked={isPathVisible}
-                onChange={togglePath}
-              />
-              <span className="slider"></span>
-            </label>
+return (
+  <div className="container" style={{ backgroundColor: '#EFF4FE' }}>
+    {/* Header Section */}
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#EFF4FE',
+        padding: '5px',
+        paddingLeft: '15px',
+        width: '100%'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <img src={logo} alt="Logo" style={{ height: '40px', marginRight: '10px' }} />
+        <h1 style={{ margin: 0, color: 'black', fontWeight: 500 }}>Store Visit Tracking</h1>
+      </div>
+      <div className="control-panel" style={{ textAlign: 'right' }}>
+        <div>
+          <button
+            id="startButton"
+            type="button"
+            onClick={(e) => {
+              createRipple(e);
+              handleStartButton();
+            }}
+          >
+            Start
+          </button>
+          <button
+            id="clearButton"
+            type="button"
+            className="clear"
+            onClick={(e) => {
+              createRipple(e);
+              handleClearButton();
+            }}
+          >
+            Clear All
+          </button>
 
-            <label className="toggle-container">
-              <span>Structure</span>
-              <input 
-                type="checkbox" 
-                id="structureToggle" 
-                checked={isStructureVisible}
-                onChange={toggleStructure}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
+          <label className="toggle-container">
+            <span>View path</span>
+            <input
+              type="checkbox"
+              id="pathToggle"
+              checked={isPathVisible}
+              onChange={togglePath}
+            />
+            <span className="slider"></span>
+          </label>
+
+          <label className="toggle-container">
+            <span>Structure</span>
+            <input
+              type="checkbox"
+              id="structureToggle"
+              checked={isStructureVisible}
+              onChange={toggleStructure}
+            />
+            <span className="slider"></span>
+          </label>
         </div>
       </div>
+    </div>
 
-      {/* Distance Display */}
-      <div className="info-display">
-        <span className="distance-box">
-          <span id="distance" style={{color:'black',fontWeight:500}}>Distance: {totalDistance.toFixed(2)} Meters</span>
-          {/* <span id='distanceDisplay'>Distance: 0.00</span> */}
-          {/* <span ref={distanceDisplayRef}>Distance: 0.00</span>  */}
-          <span className="arrow">◀</span>
-        </span>
-      </div>
+{/* Distance Display */}
+<div className="info-display">
+  <span className="distance-box">
+    <span
+      id="distance"
+      ref={distanceDisplayRef}
+      style={{ color: 'black', fontWeight: 500 }}
+    >
+      Distance: {totalDistance.toFixed(2)}
+    </span>
+    <span className="arrow">◀</span>
+  </span>
+</div>
 
-      {/* Main Layout */}
-      <div className="layout-container">
-        <div className="left-container">
-          <div id="visualization" ref={vizRef}>
-            {/* Points would be rendered here */}
-            {isPathVisible && (
-              <>
-                          {coordinates.map((point, index) => (
-                            <div 
-                              key={index}
-                              className={`point ${point.photoCapture ? 'photo-captured' : ''}`}
-                              style={{
-                                // left: `${centerX + (point.x * centerX) / 100}px`,
-                                // top: `${centerZ + (point.y * centerZ) / 100}px`
-                                left:`${centerX+point.x}px`,
-                                top:`${point.z+centerZ}px`
-                              }}
-                            />
-                          ))}
-                          </>
-            )}
 
-            
-            {/* Store structure overlay */}
-            {isStructureVisible && (
-              <div className="overlay"></div>
-            )}
-            {isStructureVisible && (
-  <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}>
-    {polygons.map((polygon) => (
-      <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}>
-        <path d={polygon.pathData} fill={polygon.color} stroke="#000" strokeWidth="2" fillOpacity="0.5" />
-        <text x={polygon.textX} y={polygon.textY} textAnchor="middle" dominantBaseline="middle" fontSize="12px" fill="#000" fontWeight="bold">
-          {polygon.name}
-        </text>
-      </g>
-    ))}
-  </svg>
-)}
-            {isPathVisible &&  (
-  <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}>
-    {pPolygons.map((polygon) => (
-      <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}>
-        <path d={polygon.pathData} fill={polygon.color} stroke="#000" strokeWidth="2" fillOpacity="0.5" />
-        <text x={polygon.textX} y={polygon.textY} textAnchor="middle" dominantBaseline="middle" fontSize="12px" fill="#000" fontWeight="bold">
-          {polygon.name}
-        </text>
-      </g>
-    ))}
-  </svg>
-)}
+    {/* Main Layout */}
+    <div className="layout-container">
+      <div className="left-container">
+        <div id="visualization" ref={vizRef}>
+          {/* Points would be rendered here */}
+          {isPathVisible && (
+            <>
+              {coordinates.map((point, index) => (
+                <div
+                  key={index}
+                  className={`point ${point.photoCapture ? 'photo-captured' : ''}`}
+                  style={{
+                    // left: `${centerX + (point.x * centerX) / 100}px`,
+                    // top: `${centerZ + (point.y * centerZ) / 100}px`
+                    left: `${centerX + point.x}px`,
+                    top: `${point.z + centerZ}px`
+                  }}
+                />
+              ))}
+            </>
+          )}
 
-              {centerCoord&& isStructureVisible &&(
-                perpendicularCoord.map((center,index)=>{
-                  let a=parseImageUrl(imageHistory[index]?.url);
-                  // console.log("parsed:",a);
-                  return(
-                  <>
+          {/* Store structure overlay */}
+          {isStructureVisible && <div className="overlay"></div>}
+          {isStructureVisible && (
+            <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
+              {polygons.map((polygon) => (
+                <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}>
+                  <path
+                    d={polygon.pathData}
+                    fill={polygon.color}
+                    stroke="#000"
+                    strokeWidth="2"
+                    fillOpacity="0.5"
+                  />
+                  <text
+                    x={polygon.textX}
+                    y={polygon.textY}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontSize="12px"
+                    fill="#000"
+                    fontWeight="bold"
+                  >
+                    {polygon.name}
+                  </text>
+                </g>
+              ))}
+            </svg>
+          )}
+          {isPathVisible && (
+            <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
+              {pPolygons.map((polygon) => (
+                <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}>
+                  <path
+                    d={polygon.pathData}
+                    fill={polygon.color}
+                    stroke="#000"
+                    strokeWidth="2"
+                    fillOpacity="0.5"
+                  />
+                  <text
+                    x={polygon.textX}
+                    y={polygon.textY}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontSize="12px"
+                    fill="#000"
+                    fontWeight="bold"
+                  >
+                    {polygon.name}
+                  </text>
+                </g>
+              ))}
+            </svg>
+          )}
+
+          {centerCoord && isStructureVisible && (
+            perpendicularCoord.map((center, index) => {
+              let a = parseImageUrl(imageHistory[index]?.url);
+              // console.log("parsed:",a);
+              return (
+                <>
                   {/* <div
                     className="tooltip"
                     style={{
                       position: "absolute",
-                      top:centerZ+ center[1]-15,
-                      left: centerX+center[0],
+                      top: centerZ + center[1] - 15,
+                      left: centerX + center[0],
                       transform: "translate(-50%, -100%)", // adjust this as needed for perfect positioning
                       pointerEvents: "none", // ensures tooltip does not interfere with interactions
-                      padding:"2px",
-                      border:"1px solid black",
-                      borderRadius:"5px",
+                      padding: "2px",
+                      border: "1px solid black",
+                      borderRadius: "5px",
                       boxShadow: '0px 4px 6px -4px rgba(0, 0, 0, 0.1)',
                       zIndex: 9999, // Ensures it's on top
                       backgroundColor: "white", display: "flex",
@@ -1246,132 +1287,160 @@ useEffect(() => {
                       minWidth: "10px",  // Ensures a base size
                       maxWidth: "200px", // Prevents excessive stretching
                       textAlign: "center"
-
                     }}
                   >
                     <div>
-                    <img src={imageHistory[index]?.url} alt="N/A" style={{
-                    maxWidth: "100%", // Ensures image does not overflow
-                    // height: "auto",   // Keeps aspect ratio
-                    height: "50px",
-                    objectFit: "fill", // Adjusts image scaling
-                  }}
-                  
-              />
+                      <img
+                        src={imageHistory[index]?.url}
+                        alt="N/A"
+                        style={{
+                          maxWidth: "100%", // Ensures image does not overflow
+                          // height: "auto",   // Keeps aspect ratio
+                          height: "50px",
+                          objectFit: "fill", // Adjusts image scaling
+                        }}
+                      />
                     </div>
-                    <div><span style={{color:"#1E1E47",fontSize:10,fontWeight:500}}>Measurmaent:</span><span style={{color:"#717AEA",fontWeight:600,fontSize:10}}>{parseFloat(a.measurement).toFixed(3)||"N/A"}</span></div>
+                    <div>
+                      <span style={{ color: "#1E1E47", fontSize: 10, fontWeight: 500 }}>Measurmaent:</span>
+                      <span style={{ color: "#717AEA", fontWeight: 600, fontSize: 10 }}>
+                        {parseFloat(a.measurement).toFixed(3) || "N/A"}
+                      </span>
+                    </div>
                   </div> */}
-                  {/* <div className="tooltip-container" style={{position:'absolute',top:centerZ+center[1]-15,left:centerX+center[0]}}> */}
-                    {/* Main content - simulated phone display with tooltip */}
-                    {/* <div className="phone-display"> */}
-                      {/* Tooltip */}
-                      <div className="tooltip" style={{position:'absolute',top:centerZ+center[1]  ,left:centerX+center[0]}}
-                       onClick={() => setSelectedImage(index)}
-                       >
-                        <div className="imagetooltip-container">
-                          <img 
-                            src={imageHistory[index]?.url} 
-                            alt="" 
-                            className="tooltip-image"
-                          />
-                        </div>
-                        
-                        {/* Measurement text */}
-                        <div className="measurement-text">
-                          <span className="measurement-label">Measurement:</span>
-                          <span className="measurement-value">{parseFloat(a.measurementL).toFixed(1)}&times;{parseFloat(a.measurementB).toFixed(1)}</span>
-                        </div>
-                        
-                        {/* Triangle pointer */}
-                        <div className="tooltip-pointer"></div>
-                      {/* </div> */}
-                      
-                      {/* <span className="display-text">Phone Display</span> */}
+                  {/* <div className="tooltip-container" style={{ position: 'absolute', top: centerZ + center[1] - 15, left: centerX + center[0] }}> */}
+                  {/* Main content - simulated phone display with tooltip */}
+                  {/* <div className="phone-display"> */}
+                  {/* Tooltip */}
+                  <div
+                    className="tooltip"
+                    style={{ position: 'absolute', top: centerZ + center[1], left: centerX + center[0] }}
+                    onClick={() => setSelectedImage(index)}
+                  >
+                    <div className="imagetooltip-container">
+                      <img src={imageHistory[index]?.url} alt="" className="tooltip-image" />
+                    </div>
+
+                    {/* Measurement text */}
+                    <div className="measurement-text">
+                      <span className="measurement-label">Measurement:</span>
+                      <span className="measurement-value">
+                        {parseFloat(a.measurementL).toFixed(1)}&times;{parseFloat(a.measurementB).toFixed(1)}
+                      </span>
+                    </div>
+
+                    {/* Triangle pointer */}
+                    <div className="tooltip-pointer"></div>
                     {/* </div> */}
+                    {/* <span className="display-text">Phone Display</span> */}
                   </div>
-                  </>
-                  )
-                  })
-              )}
-          </div>
+                </>
+              );
+            })
+          )}
         </div>
-        <div className="right-container">
-          <div style={{ 
+      </div>
+      <div className="right-container">
+        <div
+          style={{
             paddingLeft: '10px',
-            paddingTop:'10px',
-            fontWeight:'bold', 
+            paddingTop: '10px',
+            fontWeight: 'bold',
             boxShadow: '0px 4px 6px -4px rgba(0, 0, 0, 0.1)',
-            color:'black',
-          }}>
-            Reports
-          </div>
-          <div id="imageContainer">
-          {imageHistory.length > 0 ? (
-        imageHistory.map((image, index) => {
-          let a=parseImageUrl(image.url);
-          // let b=getAI(image.url);
-          // console.log("AI:",b);
-          return(
-          <div key={index} className={`card ${selectedImage===index ? "active" : ""}`}
-          ref={(el) => (imageRefs.current[index] = el)}
-          >
-            <div className="card-image-container">
-              <img src={image.url} alt={`Report ${index}`} className="card-image" />
-            </div>
-            <div className="card-content">
-              <div className="card-info">
-                <div className="card-info-row">
-                  <span className="card-info-label">Brand</span>
-                  <span className="card-info-label">Merchandise</span>
-                  <span className="card-info-label">Product</span>
-                  <span className="card-info-label">Measurement</span>
-                </div>
-                <div className="card-info-row">
-                  <span className="card-info-value">{image.metadata.bannerData?.brand || "N/A"}</span>
-                  <span className="card-info-value">{a.merchandise || "N/A"}</span>
-                  <span className="card-info-value">{a.product || "N/A"}</span>
-                  <span className="card-info-value">{parseFloat(a.measurementL).toFixed(3)}&times;{parseFloat(a.measurementB).toFixed(3)}</span>
-                </div>
-              </div>
-
-              {/* Toggle button */}
-              
-
-              {/* Extra Content - Conditionally rendered */}
-              {expandedCards[index] && (
-                <div className="extra-content-container">
-                  <div className="extra-header">
-                    <img src={star} alt="Icon" className="extra-icon" />
-                    <span className="extra-title" style={{fontWeight:400,color:'black'}}>AI Analysis</span>
-                  </div>
-                  {/* <p class="extra-description">
-             Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
-         </p> */}
-         <p class="extra-details">
-             <strong>Brand:</strong> {image.metadata.bannerData?.brand || "N/A"} <br/>
-             <strong>Position:</strong> {image.metadata.bannerData?.position || "N/A"} <br/>
-             <strong>Type:</strong> {image.metadata.bannerData?.type || "N/A"}
-         </p>
-                </div>
-              )}
-              <div className="card-toggle" onClick={() => toggleCard(index)}>
-                <span>See {expandedCards[index] ? "Less" : "More"}</span>
-                <span className="arrow">{expandedCards[index] ? "▲" : "▼"}</span>
-              </div>
-            </div>
-          </div>
-          )
-})
-      ) : (
-        <div className="no-images-message">
-          No reports available. Start tracking to capture store data.
+            color: 'black'
+          }}
+        >
+          Reports
         </div>
-      )}
-          </div>
+        <div id="imageContainer">
+          {imageHistory.length > 0 ? (
+            imageHistory.map((image, index) => {
+              let a = parseImageUrl(image.url);
+              let b = getAI(image.url);
+              // console.log("AI:",b);
+              return (
+                <div
+                  key={index}
+                  className={`card ${selectedImage === index ? 'active' : ''}`}
+                  ref={(el) => (imageRefs.current[index] = el)}
+                >
+                  <div className="card-image-container">
+                    {/* NEW LINE: onClick added here to open modal */}
+                    <img
+                      src={image.url}
+                      alt={`Report ${index}`}
+                      className="card-image"
+                      onClick={() => openModal(image.url)}
+                    />
+                  </div>
+                  <div className="card-content">
+                    <div className="card-info">
+                      <div className="card-info-row">
+                        <span className="card-info-label">Brand</span>
+                        <span className="card-info-label">Merchandise</span>
+                        <span className="card-info-label">Product</span>
+                        <span className="card-info-label">Measurement</span>
+                      </div>
+                      <div className="card-info-row">
+                        <span className="card-info-value">{image.metadata.bannerData?.brand || 'N/A'}</span>
+                        <span className="card-info-value">{a.merchandise || 'N/A'}</span>
+                        <span className="card-info-value">{a.product || 'N/A'}</span>
+                        <span className="card-info-value">
+                          {parseFloat(a.measurementL).toFixed(3)}&times;{parseFloat(a.measurementB).toFixed(3)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Toggle button */}
+
+                    {/* Extra Content - Conditionally rendered */}
+                    {expandedCards[index] && (
+                      <div className="extra-content-container">
+                        <div className="extra-header">
+                          <img src={star} alt="Icon" className="extra-icon" />
+                          <span className="extra-title" style={{ fontWeight: 400, color: 'black' }}>
+                            AI Analysis
+                          </span>
+                        </div>
+                        {/* <p class="extra-description">
+               Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
+           </p> */}
+                        <p className="extra-details">
+                          <strong>Brand:</strong> {image.metadata.bannerData?.brand || 'N/A'} <br />
+                          <strong>Position:</strong> {image.metadata.bannerData?.position || 'N/A'} <br />
+                          <strong>Type:</strong> {image.metadata.bannerData?.type || 'N/A'}
+                        </p>
+                      </div>
+                    )}
+                    <div className="card-toggle" onClick={() => toggleCard(index)}>
+                      <span>See {expandedCards[index] ? 'Less' : 'More'}</span>
+                      <span className="arrow">{expandedCards[index] ? '▲' : '▼'}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="no-images-message">
+              No reports available. Start tracking to capture store data.
+            </div>
+          )}
         </div>
       </div>
     </div>
-  );
-};
 
+    {/* NEW LINES: Modal Popup with Close Button */}
+    {modalImage && (
+      <div className="modal" onClick={closeModal}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <button className="modal-close" onClick={closeModal}>
+            &times;
+          </button>
+          <img src={modalImage} alt="Full view" />
+        </div>
+      </div>
+    )}
+  </div>
+);
+};
 export default StoreVisitTracking;
