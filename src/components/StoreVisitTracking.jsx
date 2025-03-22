@@ -27,6 +27,7 @@ const [centerCoord, setCenterCoord] = useState([]);
 const [expandedCards, setExpandedCards] = useState({});
 const distanceDisplayRef = useRef(null);
 const [perpendicularCoord, setPerpendicularCoord] = useState([]);
+const [selectedImage, setSelectedImage] = useState();
 
   const toggleCard = (index) => {
     setExpandedCards((prev) => ({
@@ -824,6 +825,7 @@ useEffect(() => {
     setDistance(0);
     setImagePointMap(new Map());
     setCenterCoord([]);
+    setPerpendicularCoord([]);
   };
   
   const handleStartButton = () => {
@@ -952,6 +954,17 @@ useEffect(() => {
     
     button.appendChild(circle);
   };
+  const imageRefs = useRef([]); // Store references for each card
+
+useEffect(() => {
+  if (selectedImage !== null && imageRefs.current[selectedImage]) {
+    imageRefs.current[selectedImage].scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center"
+    });
+  }
+}, [selectedImage]); 
 
   return (
     <div className="container" style={{ backgroundColor: '#EFF4FE' }}>
@@ -1068,76 +1081,78 @@ useEffect(() => {
   </svg>
 )}
 
-{centerCoord&& isStructureVisible &&(
-  perpendicularCoord.map((center,index)=>{
-    let a=parseImageUrl(imageHistory[index]?.url);
-    console.log("parsed:",a);
-    return(
-    <>
-    {/* <div
-      className="tooltip"
-      style={{
-        position: "absolute",
-        top:centerZ+ center[1]-15,
-        left: centerX+center[0],
-        transform: "translate(-50%, -100%)", // adjust this as needed for perfect positioning
-        pointerEvents: "none", // ensures tooltip does not interfere with interactions
-        padding:"2px",
-        border:"1px solid black",
-        borderRadius:"5px",
-        boxShadow: '0px 4px 6px -4px rgba(0, 0, 0, 0.1)',
-        zIndex: 9999, // Ensures it's on top
-        backgroundColor: "white", display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minWidth: "10px",  // Ensures a base size
-        maxWidth: "200px", // Prevents excessive stretching
-        textAlign: "center"
+              {centerCoord&& isStructureVisible &&(
+                perpendicularCoord.map((center,index)=>{
+                  let a=parseImageUrl(imageHistory[index]?.url);
+                  console.log("parsed:",a);
+                  return(
+                  <>
+                  {/* <div
+                    className="tooltip"
+                    style={{
+                      position: "absolute",
+                      top:centerZ+ center[1]-15,
+                      left: centerX+center[0],
+                      transform: "translate(-50%, -100%)", // adjust this as needed for perfect positioning
+                      pointerEvents: "none", // ensures tooltip does not interfere with interactions
+                      padding:"2px",
+                      border:"1px solid black",
+                      borderRadius:"5px",
+                      boxShadow: '0px 4px 6px -4px rgba(0, 0, 0, 0.1)',
+                      zIndex: 9999, // Ensures it's on top
+                      backgroundColor: "white", display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      minWidth: "10px",  // Ensures a base size
+                      maxWidth: "200px", // Prevents excessive stretching
+                      textAlign: "center"
 
-      }}
-    >
-      <div>
-      <img src={imageHistory[index]?.url} alt="N/A" style={{
-      maxWidth: "100%", // Ensures image does not overflow
-      // height: "auto",   // Keeps aspect ratio
-      height: "50px",
-      objectFit: "fill", // Adjusts image scaling
-    }}
-    
- />
-      </div>
-      <div><span style={{color:"#1E1E47",fontSize:10,fontWeight:500}}>Measurmaent:</span><span style={{color:"#717AEA",fontWeight:600,fontSize:10}}>{parseFloat(a.measurement).toFixed(3)||"N/A"}</span></div>
-    </div> */}
-    {/* <div className="tooltip-container" style={{position:'absolute',top:centerZ+center[1]-15,left:centerX+center[0]}}> */}
-      {/* Main content - simulated phone display with tooltip */}
-      {/* <div className="phone-display"> */}
-        {/* Tooltip */}
-        <div className="tooltip" style={{position:'absolute',top:centerZ+center[1]  ,left:centerX+center[0]}}>
-          <div className="imagetooltip-container">
-            <img 
-              src={imageHistory[index]?.url} 
-              alt="" 
-              className="tooltip-image"
-            />
-          </div>
-          
-          {/* Measurement text */}
-          <div className="measurement-text">
-            <span className="measurement-label">Measurement:</span>
-            <span className="measurement-value">{parseFloat(a.measurement).toFixed(3)}</span>
-          </div>
-          
-          {/* Triangle pointer */}
-          <div className="tooltip-pointer"></div>
-        {/* </div> */}
-        
-        {/* <span className="display-text">Phone Display</span> */}
-      {/* </div> */}
-    </div>
-    </>
-    )
-    })
-)}
+                    }}
+                  >
+                    <div>
+                    <img src={imageHistory[index]?.url} alt="N/A" style={{
+                    maxWidth: "100%", // Ensures image does not overflow
+                    // height: "auto",   // Keeps aspect ratio
+                    height: "50px",
+                    objectFit: "fill", // Adjusts image scaling
+                  }}
+                  
+              />
+                    </div>
+                    <div><span style={{color:"#1E1E47",fontSize:10,fontWeight:500}}>Measurmaent:</span><span style={{color:"#717AEA",fontWeight:600,fontSize:10}}>{parseFloat(a.measurement).toFixed(3)||"N/A"}</span></div>
+                  </div> */}
+                  {/* <div className="tooltip-container" style={{position:'absolute',top:centerZ+center[1]-15,left:centerX+center[0]}}> */}
+                    {/* Main content - simulated phone display with tooltip */}
+                    {/* <div className="phone-display"> */}
+                      {/* Tooltip */}
+                      <div className="tooltip" style={{position:'absolute',top:centerZ+center[1]  ,left:centerX+center[0]}}
+                       onClick={() => setSelectedImage(index)}
+                       >
+                        <div className="imagetooltip-container">
+                          <img 
+                            src={imageHistory[index]?.url} 
+                            alt="" 
+                            className="tooltip-image"
+                          />
+                        </div>
+                        
+                        {/* Measurement text */}
+                        <div className="measurement-text">
+                          <span className="measurement-label">Measurement:</span>
+                          <span className="measurement-value">{parseFloat(a.measurement).toFixed(3)}</span>
+                        </div>
+                        
+                        {/* Triangle pointer */}
+                        <div className="tooltip-pointer"></div>
+                      {/* </div> */}
+                      
+                      {/* <span className="display-text">Phone Display</span> */}
+                    {/* </div> */}
+                  </div>
+                  </>
+                  )
+                  })
+              )}
           </div>
         </div>
         <div className="right-container">
@@ -1157,7 +1172,9 @@ useEffect(() => {
           // let b=getAI(image.url);
           // console.log("AI:",b);
           return(
-          <div key={index} className={`card ${image.active ? "active" : ""}`}>
+          <div key={index} className={`card ${selectedImage===index ? "active" : ""}`}
+          ref={(el) => (imageRefs.current[index] = el)}
+          >
             <div className="card-image-container">
               <img src={image.url} alt={`Report ${index}`} className="card-image" />
             </div>
