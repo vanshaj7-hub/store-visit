@@ -1348,7 +1348,44 @@ return (
       ))}
     </svg>
   )}
-</div>
+          {centerCoord && isStructureVisible && (
+            perpendicularCoord.map((center, index) => {
+              let a = parseImageUrl(imageHistory[index]?.url);
+              // console.log("parsed:",a);
+              return (
+                <>
+                  <div
+                    className="tooltip"
+                    style={{ position: 'absolute', top: centerZ + center[1]-10, left: centerX + center[0] ,
+                    display: isHovering===perpendicularCoord.length-index-1 ? "block" : "none"
+                  }}
+                    onClick={() => setSelectedImage(index)}
+                    
+                    
+                  >
+                    <div className="imagetooltip-container">
+                      <img src={imageHistory[index]?.url} alt="" className="tooltip-image" />
+                    </div>
+
+                    {/* Measurement text */}
+                    <div className="measurement-text">
+                      <span className="measurement-label">Measurement:</span>
+                      <span className="measurement-value">
+                        {parseFloat(a.measurementL).toFixed(1)}&times;{parseFloat(a.measurementB).toFixed(1)}
+                      </span>
+                    </div>
+
+                    {/* Triangle pointer */}
+                    <div className="tooltip-pointer"></div>
+                    {/* </div> */}
+                    {/* <span className="display-text">Phone Display</span> */}
+                  </div>
+
+                </>
+              );
+            })
+          )}
+        </div>
 
 
       </div>
