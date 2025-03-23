@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import './store.css';
 import logo from '../assets/logo.png'
 import star from '../assets/star.png'
+import axios from 'axios';
 const StoreVisitTracking = () => {
   // State variables
   const [modalImage, setModalImage] = useState(null);
@@ -181,28 +182,53 @@ const vizRef = useRef(null);
     }
   ];
   function getAI(imageurl) {
-          const myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
+      //     const myHeaders = new Headers();
+      // myHeaders.append("Content-Type", "application/json");
 
-      const raw = JSON.stringify({
-        "image_link": imageurl
-      });
+      // const raw = JSON.stringify({
+      //   "image_link": imageurl
+      // });
 
-      const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow"
-      };
+      // const requestOptions = {
+      //   method: "POST",
+      //   headers: myHeaders,
+      //   body: raw,
+      //   redirect: "follow"
+      // };
 
-      fetch("https://banner-backend-85801868683.us-central1.run.app/api/get_banner_data", requestOptions)
-        .then((response) => response.text())
-        .then((result) => {
-          console.log(result);
-          setAIDetails((prevdetails) => [JSON.parse(result), ...prevdetails]);
+      // fetch("https://banner-backend-85801868683.us-central1.run.app/api/get_banner_data", requestOptions)
+      //   .then((response) => console.log(response))
+      //   .then((result) => {
+      //     console.log(result);
+      //     setAIDetails((prevdetails) => [result, ...prevdetails]);
 
-          ;return result})
-        .catch((error) => {console.error(error);return error});
+      //     ;return result})
+      //   .catch((error) => {console.error(error);return error});
+
+
+let data = JSON.stringify({
+  "image_link": imageurl
+});
+
+let config = {
+  method: 'post',
+  maxBodyLength: Infinity,
+  url: 'https://banner-backend-85801868683.us-central1.run.app/api/get_banner_data',
+  headers: { 
+    'Content-Type': 'application/json'
+  },
+  data : data
+};
+
+axios.request(config)
+.then((response) => {
+  console.log((response.data));
+  setAIDetails((prevdetails) => [response.data, ...prevdetails]);
+})
+.catch((error) => {
+  console.log(error);
+});
+
   }
   
 // console.log(structures);
