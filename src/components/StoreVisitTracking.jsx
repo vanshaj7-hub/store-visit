@@ -1240,11 +1240,11 @@ return (
             </svg>
           )}
           {isPathVisible && (
-            <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
+            <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
               {pPolygons.map((polygon,index) => (
                 <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}
                 onMouseEnter={() => {setIsHovering(index);console.log('hoveringgggggg',index)}}
-                    onMouseLeave={() => setIsHovering()}
+                    onMouseLeave={() => setIsHovering(null)}
                 >
                   <path
                     d={polygon.pathData}
@@ -1322,7 +1322,7 @@ return (
                   <div
                     className="tooltip"
                     style={{ position: 'absolute', top: centerZ + center[1], left: centerX + center[0] ,
-                    display: isHovering===index ? "block" : "none"
+                    display: isHovering===perpendicularCoord.length-index-1 ? "block" : "none"
                   }}
                     onClick={() => setSelectedImage(index)}
                     
@@ -1345,6 +1345,7 @@ return (
                     {/* </div> */}
                     {/* <span className="display-text">Phone Display</span> */}
                   </div>
+
                 </>
               );
             })

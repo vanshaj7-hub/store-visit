@@ -434,7 +434,7 @@
     flex-direction: column;
     align-items: center;
     transition: all 0.2s ease-in-out; /* smooth transition */
-    display: none;
+    /* display: none; */
   }
   
   .tooltip:hover {
