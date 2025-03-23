@@ -41,6 +41,7 @@ const [pPolygons, setPPolygons] = useState([]);
 const [isHovering, setIsHovering] = useState();
 const [imageResponse, setImageResponse] = useState(false);
 const [imageResponseUrl, setImageResponseUrl] = useState("");
+const [aiDetails, setAIDetails] = useState();
   const toggleCard = (index) => {
     setExpandedCards((prev) => ({
       ...prev,
@@ -51,7 +52,11 @@ const [imageResponseUrl, setImageResponseUrl] = useState("");
 const socketRef = useRef(null);
 let squares=[];
 const vizRef = useRef(null);
-
+  useEffect(() => {
+    // localStorage.getItem
+    handleClearButton();
+  }, [])
+  
   const structures = [
     // {
     //   id: 'shelf-1',
@@ -192,7 +197,11 @@ const vizRef = useRef(null);
 
       fetch("https://banner-backend-85801868683.us-central1.run.app/api/get_banner_data", requestOptions)
         .then((response) => response.text())
-        .then((result) => {console.log(result);return result})
+        .then((result) => {
+          console.log(result);
+          setAIDetails((prevdetails) => [JSON.parse(result), ...prevdetails]);
+
+          ;return result})
         .catch((error) => {console.error(error);return error});
   }
   
@@ -872,7 +881,7 @@ useEffect(() => {
     // Receive image history
     socketRef.current.on("image-history", (history) => {
       console.log("Received image history:", history);
-      setImageHistory(history);
+      // setImageHistory(history);
       updateImagePointMap();
       renderAllImages(history);
     });
@@ -892,6 +901,9 @@ useEffect(() => {
       console.log("New image received:", data);
       setImageResponse(true);
       setImageResponseUrl(data.url);
+      let aisummary=getAI(data.url);
+      console.log("AI Summaryrrrrrrr:", aisummary);
+      // setAIDetails((prevdetails) => [aisummary, ...prevdetails]);
       // Add to beginning of array so newest is first
       setImageHistory(prevHistory => [data, ...prevHistory]);
       updateImagePointMap();
@@ -970,6 +982,7 @@ useEffect(() => {
     setPerpendicularCoord([]);
     setPPolygons([]);
     setPstructures([]);
+    setAIDetails([]);
   };
   
   const handleStartButton = () => {
@@ -1379,7 +1392,8 @@ return (
           Reports
         </div>
         <div id="imageContainer">
-          {imageHistory.length > 0 ? (
+          {imageHistory.length > 0 && aiDetails.length>0 ? (
+            console.log("ai details",aiDetails),
             imageHistory.map((image, index) => {
               let a = parseImageUrl(image.url);
               // let ai = getAI(image.url);
@@ -1432,10 +1446,13 @@ return (
                Designed for online marketing campaigns, this banner comes with various attributes to ensure adaptability across platforms:
            </p> */}
                         <p className="extra-details">
-                          <strong>Brand:</strong> {image.metadata.bannerData?.brand || 'N/A'} <br />
-                          <strong>Position:</strong> {image.metadata.bannerData?.position || 'N/A'} <br />
-                          <strong>Type:</strong> {image.metadata.bannerData?.type || 'N/A'}
+                          <strong>Brand:</strong> {aiDetails[index]?.brand || 'N/A'} <br />
+                          <strong>Position:</strong> {aiDetails[index]?.position || 'N/A'} <br />
+                          <strong>Summary:</strong> {aiDetails[index]?.summary || 'No AI analysis available.'}
                         </p>
+                        {/* <p>
+                          {aiDetails[index]?.summary || 'No AI analysis available.'}
+                        </p> */}
                       </div>
                     )}
                     <div className="card-toggle" onClick={() => toggleCard(index)}>
