@@ -190,7 +190,7 @@ const vizRef = useRef(null);
       fetch("https://banner-backend-85801868683.us-central1.run.app/api/get_banner_data", requestOptions)
         .then((response) => response.text())
         .then((result) => {console.log(result);return result})
-        .catch((error) => console.error(error));
+        .catch((error) => {console.error(error);return error});
   }
   
 // console.log(structures);
@@ -1358,8 +1358,8 @@ return (
           {imageHistory.length > 0 ? (
             imageHistory.map((image, index) => {
               let a = parseImageUrl(image.url);
-              // let b = getAI(image.url);
-              // console.log("AI:",b);
+              let b = getAI(image.url);
+              console.log("AI:",b);  
               return (
                 <div
                   key={index}
@@ -1433,7 +1433,7 @@ return (
 
     {/* NEW LINES: Modal Popup with Close Button */}
     {modalImage && (
-      <div className="modal" onClick={closeModal}>
+      <div className="modal" onClick={closeModal} style={{zIndex:20}}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <button className="modal-close" onClick={closeModal}>
             &times;
