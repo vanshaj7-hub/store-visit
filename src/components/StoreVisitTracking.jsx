@@ -39,6 +39,8 @@ const [selectedImage, setSelectedImage] = useState();
 const [pstructures, setPstructures] = useState([]);
 const [pPolygons, setPPolygons] = useState([]);
 const [isHovering, setIsHovering] = useState();
+const [imageResponse, setImageResponse] = useState(false);
+const [imageResponseUrl, setImageResponseUrl] = useState("");
   const toggleCard = (index) => {
     setExpandedCards((prev) => ({
       ...prev,
@@ -355,8 +357,17 @@ const vizRef = useRef(null);
     return { distance, point: [projX, projZ] };
 }
   function find_nearest(x, z,diagonal,vizElemen,l,b) {
-    console.log("images:",imageHistory);
-
+    console.log("imagesssssssss:",imageHistory);
+    // console.log(parseImageUrl(imageHistory[0]?.url));
+    // const interval = setInterval(() => {
+    //   if (!imageResponse) {
+    //     console.log("imageResponseUrl:",imageResponseUrl);
+    //     console.log("failureeeee:",parseImageUrl(imageResponseUrl));
+    //   } else {
+    //     console.log("successsssss:",parseImageUrl(imageResponseUrl));
+    //     clearInterval(interval);
+    //   }
+    // }, 1000);
     // x=(x/100)*500;
     // z=(z/100)*250;
     console.log(x,z);
@@ -791,7 +802,7 @@ useEffect(()=>{
   
         return {
           id: structureIndex.toString(), 
-          name:`Rectangle ${structureIndex + 1}`,
+          name:"",
           type: 'counter',
           pathData,
           textX,
@@ -879,6 +890,8 @@ useEffect(() => {
     // Receive new image
     socketRef.current.on("new-image", (data) => {
       console.log("New image received:", data);
+      setImageResponse(true);
+      setImageResponseUrl(data.url);
       // Add to beginning of array so newest is first
       setImageHistory(prevHistory => [data, ...prevHistory]);
       updateImagePointMap();
@@ -1245,6 +1258,7 @@ return (
                 <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}
                 onMouseEnter={() => {setIsHovering(index);console.log('hoveringgggggg',index)}}
                     onMouseLeave={() => setIsHovering(null)}
+                    onClick={() => setSelectedImage(index)}
                 >
                   <path
                     d={polygon.pathData}
@@ -1321,7 +1335,7 @@ return (
                   {/* Tooltip */}
                   <div
                     className="tooltip"
-                    style={{ position: 'absolute', top: centerZ + center[1], left: centerX + center[0] ,
+                    style={{ position: 'absolute', top: centerZ + center[1]-10, left: centerX + center[0] ,
                     display: isHovering===perpendicularCoord.length-index-1 ? "block" : "none"
                   }}
                     onClick={() => setSelectedImage(index)}
