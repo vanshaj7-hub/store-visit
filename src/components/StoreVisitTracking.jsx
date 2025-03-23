@@ -1244,166 +1244,112 @@ return (
     {/* Main Layout */}
     <div className="layout-container">
       <div className="left-container">
-        <div id="visualization" ref={vizRef}>
-          {/* Points would be rendered here */}
-          {isPathVisible && (
-            <>
-              {coordinates.map((point, index) => (
-                <div
-                  key={index}
-                  className={`point ${point.photoCapture ? 'photo-captured' : ''}`}
-                  style={{
-                    // left: `${centerX + (point.x * centerX) / 100}px`,
-                    // top: `${centerZ + (point.y * centerZ) / 100}px`
-                    left: `${centerX + point.x}px`,
-                    top: `${point.z + centerZ}px`
-                  }}
-                />
-              ))}
-            </>
-          )}
+      <div id="visualization" ref={vizRef} style={{ position: 'relative' }}>
+  {/* Render the route polyline when path is visible */}
+  {isPathVisible && coordinates.length > 0 && (
+    <svg
+      width="100%"
+      height="100%"
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        pointerEvents: 'none'
+      }}
+    >
+      <polyline
+        points={
+          coordinates
+            .map(point => `${centerX + point.x},${centerZ + point.z}`)
+            .join(' ')
+        }
+        fill="none"
+        stroke="blue"
+        strokeWidth="2"
+      />
+    </svg>
+  )}
 
-          {/* Store structure overlay */}
-          {isStructureVisible && <div className="overlay"></div>}
-          {isStructureVisible && (
-            <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
-              {polygons.map((polygon) => (
-                <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}>
-                  <path
-                    d={polygon.pathData}
-                    fill={polygon.color}
-                    stroke="#000"
-                    strokeWidth="2"
-                    fillOpacity="0.5"
-                  />
-                  <text
-                    x={polygon.textX}
-                    y={polygon.textY}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fontSize="12px"
-                    fill="#000"
-                    fontWeight="bold"
-                  >
-                    {polygon.name}
-                  </text>
-                </g>
-              ))}
-            </svg>
-          )}
-          {isPathVisible && (
-            <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
-              {pPolygons.map((polygon,index) => (
-                <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}
-                onMouseEnter={() => {setIsHovering(index);console.log('hoveringgggggg',index)}}
-                    onMouseLeave={() => setIsHovering(null)}
-                    onClick={() => setSelectedImage(index)}
-                >
-                  <path
-                    d={polygon.pathData}
-                    fill={polygon.color}
-                    stroke="#000"
-                    strokeWidth="2"
-                    fillOpacity="0.5"
-                  />
-                  <text
-                    x={polygon.textX}
-                    y={polygon.textY}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fontSize="12px"
-                    fill="#000"
-                    fontWeight="bold"
-                  >
-                    {polygon.name}
-                  </text>
-                </g>
-              ))}
-            </svg>
-          )}
+  {/* Render individual coordinate points */}
+  {isPathVisible && (
+    <>
+      {coordinates.map((point, index) => (
+        <div
+          key={index}
+          className={`point ${point.photoCapture ? 'photo-captured' : ''}`}
+          style={{
+            left: `${centerX + point.x}px`,
+            top: `${centerZ + point.z}px`
+          }}
+        />
+      ))}
+    </>
+  )}
 
-          {centerCoord && isStructureVisible && (
-            perpendicularCoord.map((center, index) => {
-              let a = parseImageUrl(imageHistory[index]?.url);
-              // console.log("parsed:",a);
-              return (
-                <>
-                  {/* <div
-                    className="tooltip"
-                    style={{
-                      position: "absolute",
-                      top: centerZ + center[1] - 15,
-                      left: centerX + center[0],
-                      transform: "translate(-50%, -100%)", // adjust this as needed for perfect positioning
-                      pointerEvents: "none", // ensures tooltip does not interfere with interactions
-                      padding: "2px",
-                      border: "1px solid black",
-                      borderRadius: "5px",
-                      boxShadow: '0px 4px 6px -4px rgba(0, 0, 0, 0.1)',
-                      zIndex: 9999, // Ensures it's on top
-                      backgroundColor: "white", display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      minWidth: "10px",  // Ensures a base size
-                      maxWidth: "200px", // Prevents excessive stretching
-                      textAlign: "center"
-                    }}
-                  >
-                    <div>
-                      <img
-                        src={imageHistory[index]?.url}
-                        alt="N/A"
-                        style={{
-                          maxWidth: "100%", // Ensures image does not overflow
-                          // height: "auto",   // Keeps aspect ratio
-                          height: "50px",
-                          objectFit: "fill", // Adjusts image scaling
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <span style={{ color: "#1E1E47", fontSize: 10, fontWeight: 500 }}>Measurmaent:</span>
-                      <span style={{ color: "#717AEA", fontWeight: 600, fontSize: 10 }}>
-                        {parseFloat(a.measurement).toFixed(3) || "N/A"}
-                      </span>
-                    </div>
-                  </div> */}
-                  {/* <div className="tooltip-container" style={{ position: 'absolute', top: centerZ + center[1] - 15, left: centerX + center[0] }}> */}
-                  {/* Main content - simulated phone display with tooltip */}
-                  {/* <div className="phone-display"> */}
-                  {/* Tooltip */}
-                  <div
-                    className="tooltip"
-                    style={{ position: 'absolute', top: centerZ + center[1]-10, left: centerX + center[0] ,
-                    display: isHovering===perpendicularCoord.length-index-1 ? "block" : "none"
-                  }}
-                    onClick={() => setSelectedImage(index)}
-                    
-                    
-                  >
-                    <div className="imagetooltip-container">
-                      <img src={imageHistory[index]?.url} alt="" className="tooltip-image" />
-                    </div>
+  {/* Store structure overlay and other SVG elements remain unchanged */}
+  {isStructureVisible && <div className="overlay"></div>}
+  {isStructureVisible && (
+    <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
+      {polygons.map((polygon) => (
+        <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}>
+          <path
+            d={polygon.pathData}
+            fill={polygon.color}
+            stroke="#000"
+            strokeWidth="2"
+            fillOpacity="0.5"
+          />
+          <text
+            x={polygon.textX}
+            y={polygon.textY}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="12px"
+            fill="#000"
+            fontWeight="bold"
+          >
+            {polygon.name}
+          </text>
+        </g>
+      ))}
+    </svg>
+  )}
 
-                    {/* Measurement text */}
-                    <div className="measurement-text">
-                      <span className="measurement-label">Measurement:</span>
-                      <span className="measurement-value">
-                        {parseFloat(a.measurementL).toFixed(1)}&times;{parseFloat(a.measurementB).toFixed(1)}
-                      </span>
-                    </div>
+  {isPathVisible && (
+    <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
+      {pPolygons.map((polygon, index) => (
+        <g
+          key={polygon.id}
+          className={`structure ${polygon.type}`}
+          title={polygon.name}
+          onMouseEnter={() => { setIsHovering(index); console.log('hovering', index); }}
+          onMouseLeave={() => setIsHovering(null)}
+          onClick={() => setSelectedImage(index)}
+        >
+          <path
+            d={polygon.pathData}
+            fill={polygon.color}
+            stroke="#000"
+            strokeWidth="2"
+            fillOpacity="0.5"
+          />
+          <text
+            x={polygon.textX}
+            y={polygon.textY}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="12px"
+            fill="#000"
+            fontWeight="bold"
+          >
+            {polygon.name}
+          </text>
+        </g>
+      ))}
+    </svg>
+  )}
+</div>
 
-                    {/* Triangle pointer */}
-                    <div className="tooltip-pointer"></div>
-                    {/* </div> */}
-                    {/* <span className="display-text">Phone Display</span> */}
-                  </div>
-
-                </>
-              );
-            })
-          )}
-        </div>
       </div>
       <div className="right-container">
         <div
