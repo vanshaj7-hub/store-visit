@@ -38,6 +38,7 @@ const [perpendicularCoord, setPerpendicularCoord] = useState([]);
 const [selectedImage, setSelectedImage] = useState();
 const [pstructures, setPstructures] = useState([]);
 const [pPolygons, setPPolygons] = useState([]);
+const [isHovering, setIsHovering] = useState();
   const toggleCard = (index) => {
     setExpandedCards((prev) => ({
       ...prev,
@@ -437,16 +438,16 @@ const vizRef = useRef(null);
     //append in the front to cenercoord
     // setCenterCoord(prevcenterCoord  => [center,...prevcenterCoord]);
     setCenterCoord((prev) => {
-      console.log("Previous State:", prev);
+      // console.log("Previous State:", prev);
       const updated = [center, ...prev];
-      console.log("Updated State:", updated);
+      // console.log("Updated State:", updated);
       return updated;
     });
 
     setPerpendicularCoord((prev) => {
-      console.log("Previous State:", prev);
+      // console.log("Previous State:", prev);
       const updated = [perpendicularPoint, ...prev];
-      console.log("Updated State:", updated);
+      // console.log("Updated State:", updated);
       return updated;
     });
     // setCenterCoord(center);
@@ -462,8 +463,8 @@ const vizRef = useRef(null);
       l=10;
       b=5;
     }
-    l=l*10;
-    b=b*10;
+    l=l*5;
+    b=b*5;
     const pcoordinates=[
       [perpendicularPoint[0] - l, perpendicularPoint[1] - b/2], // Top-left
       [perpendicularPoint[0] - l, perpendicularPoint[1] + b/2],
@@ -479,7 +480,7 @@ const vizRef = useRef(null);
     ]);
     console.log("pcoordinates:",pcoordinates);
   
-    console.log("Square Coordinates:", squareCoordinates);
+    // console.log("Square Coordinates:", squareCoordinates);
     // setSquareCoordinates(squareCoordinates);
 
     // createSquareVisualization(squareCoordinates, vizElement);
@@ -739,30 +740,30 @@ const vizRef = useRef(null);
     setPolygons(newPolygons);
   }, [vizDimensions]);
 
-useEffect(() => {
-  console.log("setting squareCoordinates");
-   squares = squareCoordinates??squareCoordinates.map((coords, index) => {
-    // Generate path data from coordinates
-    const pathData = coords.map((point, i) => {
-      return `${i === 0 ? 'M' : 'L'} ${point[0]},${point[1]}`;
-    }).join(' ') + ' Z'; // Close the path
+// useEffect(() => {
+//   console.log("setting squareCoordinates");
+//    squares = squareCoordinates??squareCoordinates.map((coords, index) => {
+//     // Generate path data from coordinates
+//     const pathData = coords.map((point, i) => {
+//       return `${i === 0 ? 'M' : 'L'} ${point[0]},${point[1]}`;
+//     }).join(' ') + ' Z'; // Close the path
     
-    // Calculate center point for text
-    const centerX = coords.reduce((sum, point) => sum + point[0], 0) / coords.length;
-    const centerY = coords.reduce((sum, point) => sum + point[1], 0) / coords.length;
+//     // Calculate center point for text
+//     const centerX = coords.reduce((sum, point) => sum + point[0], 0) / coords.length;
+//     const centerY = coords.reduce((sum, point) => sum + point[1], 0) / coords.length;
     
-    return {
-      id: `square-${index}`,
-      pathData: pathData,
-      color: "#717AEA",
-      type: "shelf", // or any other classification you need
-      name: `Square ${index + 1}`,
-      textX: centerX,
-      textY: centerY
-    };
-  });
+//     return {
+//       id: `square-${index}`,
+//       pathData: pathData,
+//       color: "#717AEA",
+//       type: "shelf", // or any other classification you need
+//       name: `Square ${index + 1}`,
+//       textX: centerX,
+//       textY: centerY
+//     };
+//   });
 
-}, [squareCoordinates])
+// }, [squareCoordinates])
 
   // Refs
 useEffect(()=>{
@@ -955,6 +956,7 @@ useEffect(() => {
     setCenterCoord([]);
     setPerpendicularCoord([]);
     setPPolygons([]);
+    setPstructures([]);
   };
   
   const handleStartButton = () => {
@@ -1239,8 +1241,11 @@ return (
           )}
           {isPathVisible && (
             <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}>
-              {pPolygons.map((polygon) => (
-                <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}>
+              {pPolygons.map((polygon,index) => (
+                <g key={polygon.id} className={`structure ${polygon.type}`} title={polygon.name}
+                onMouseEnter={() => {setIsHovering(index);console.log('hoveringgggggg',index)}}
+                    onMouseLeave={() => setIsHovering()}
+                >
                   <path
                     d={polygon.pathData}
                     fill={polygon.color}
@@ -1316,8 +1321,12 @@ return (
                   {/* Tooltip */}
                   <div
                     className="tooltip"
-                    style={{ position: 'absolute', top: centerZ + center[1], left: centerX + center[0] }}
+                    style={{ position: 'absolute', top: centerZ + center[1], left: centerX + center[0] ,
+                    display: isHovering===index ? "block" : "none"
+                  }}
                     onClick={() => setSelectedImage(index)}
+                    
+                    
                   >
                     <div className="imagetooltip-container">
                       <img src={imageHistory[index]?.url} alt="" className="tooltip-image" />
@@ -1358,8 +1367,8 @@ return (
           {imageHistory.length > 0 ? (
             imageHistory.map((image, index) => {
               let a = parseImageUrl(image.url);
-              let b = getAI(image.url);
-              console.log("AI:",b);  
+              // let ai = getAI(image.url);
+              // console.log("AI:",ai);  
               return (
                 <div
                   key={index}
