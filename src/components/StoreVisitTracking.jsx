@@ -1357,7 +1357,7 @@ return (
             imageHistory.map((image, index) => {
               let a = parseImageUrl(image.url);
               let b = getAI(image.url);
-              // console.log("AI:",b);
+              console.log("AI:",b);
               return (
                 <div
                   key={index}
