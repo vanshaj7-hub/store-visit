@@ -223,7 +223,7 @@ let config = {
 axios.request(config)
 .then((response) => {
   console.log((response.data));
-  setAIDetails((prevdetails) => [response.data, ...prevdetails]);
+  setAIDetails((prevdetails) => [...prevdetails,response.data]);
 })
 .catch((error) => {
   console.log(error);
@@ -907,7 +907,7 @@ useEffect(() => {
     // Receive image history
     socketRef.current.on("image-history", (history) => {
       console.log("Received image history:", history);
-      // setImageHistory(history);
+      setImageHistory(history);
       updateImagePointMap();
       renderAllImages(history);
     });
@@ -1067,7 +1067,7 @@ useEffect(() => {
           const testImages=[
             // "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2FSamsung_DummyDevice_Watch_0_0.png?alt=media&token=57327a02-caf0-4bd5-a13c-7dcb3604f497"
           
-            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2Fgoogle_dummy_phone_9_5.jpg?alt=media&token=8c13c2aa-dd7e-48c0-9353-607951ac7f39"
+            "https://firebasestorage.googleapis.com/v0/b/fieldapp-39256.appspot.com/o/ARTracker%2Fgoogle_dummy_phone_9_5.jpg?alt=media&token=8c13c2aa-dd7e-48c0-9353-607951ac7f39",
           ]
 
           const imageUrl =
