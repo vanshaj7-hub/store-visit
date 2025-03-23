@@ -459,16 +459,16 @@ const vizRef = useRef(null);
     ];
     if(l==0 && b==0)
     {
-      l=5;
+      l=10;
       b=5;
     }
     l=l*10;
     b=b*10;
     const pcoordinates=[
-      [perpendicularPoint[0] - l/2, perpendicularPoint[1] - b/2], // Top-left
-      [perpendicularPoint[0] - l/2, perpendicularPoint[1] + b/2],
-      [perpendicularPoint[0] + l/2, perpendicularPoint[1] + b/2], // Bottom-right
-      [perpendicularPoint[0] + l/2, perpendicularPoint[1] - b/2], // Top-right
+      [perpendicularPoint[0] - l, perpendicularPoint[1] - b/2], // Top-left
+      [perpendicularPoint[0] - l, perpendicularPoint[1] + b/2],
+      [perpendicularPoint[0] , perpendicularPoint[1] + b/2], // Bottom-right
+      [perpendicularPoint[0] , perpendicularPoint[1] - b/2], // Top-right
        // Bottom-left
 
     ]
@@ -772,7 +772,8 @@ useEffect(()=>{
       const centerx = vizDimensions.width / 2;
       const centerz = vizDimensions.height / 2;
 
-      const newPolygons = pstructures.map((structure) => {
+      const newPolygons = pstructures.map((structure,structureIndex) => {
+        console.log("ploygon structure:",structure);
         let pathData = "";
         structure.coordinates.forEach((coord, index) => {
           const screenX = centerx + coord[0];
@@ -788,8 +789,8 @@ useEffect(()=>{
         const textY = centerz + centerCoord[1];
   
         return {
-          id: '1',
-          name: 'test',
+          id: structureIndex.toString(), 
+          name:`Rectangle ${structureIndex + 1}`,
           type: 'counter',
           pathData,
           textX,
@@ -802,7 +803,7 @@ useEffect(()=>{
 
 setPPolygons(newPolygons);
 
-},[pstructures])
+},[pstructures,vizDimensions])
 
 // Add state for the visualization dimensions
 
@@ -953,6 +954,7 @@ useEffect(() => {
     setImagePointMap(new Map());
     setCenterCoord([]);
     setPerpendicularCoord([]);
+    setPPolygons([]);
   };
   
   const handleStartButton = () => {
@@ -1356,7 +1358,7 @@ return (
           {imageHistory.length > 0 ? (
             imageHistory.map((image, index) => {
               let a = parseImageUrl(image.url);
-              let b = getAI(image.url);
+              // let b = getAI(image.url);
               // console.log("AI:",b);
               return (
                 <div
