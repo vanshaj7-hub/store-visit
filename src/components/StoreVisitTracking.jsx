@@ -4,6 +4,8 @@ import './store.css';
 import logo from '../assets/logo.png'
 import star from '../assets/star.png'
 import axios from 'axios';
+const backendUrl=import.meta.env.NEXT_PUBLIC_BACKEND_URL;
+
 const StoreVisitTracking = () => {
   // State variables
   const [modalImage, setModalImage] = useState(null);
@@ -881,7 +883,7 @@ useEffect(() => {
   // Connect to Socket.IO when component mounts
   useEffect(() => {
     // socketRef.current = io();
-    socketRef.current = io("https://storevisualservice-test.onrender.com/");
+    socketRef.current = io(backendUrl);
     socketRef.current.on("connect", () => {
       console.log("Connected to server with ID:", socketRef.current.id);
     });
@@ -991,7 +993,7 @@ useEffect(() => {
       socketRef.current.emit("clear-coordinates");
       socketRef.current.emit("clear-images");
     }
-    fetch("https://storevisualservice-test.onrender.com/api/all", {
+    fetch(`${backendUrl}/api/all`, {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -1034,7 +1036,7 @@ useEffect(() => {
 
     const timestamp = Date.now();
 
-    fetch("https://storevisualservice-test.onrender.com/api/coordinates", {
+    fetch(`${backendUrl}/api/coordinates`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1083,10 +1085,10 @@ useEffect(() => {
           const randomType = types[Math.floor(Math.random() * types.length)];
 
           // First post the image
-          fetch("https://storevisualservice-test.onrender.com/api/image", {
+          fetch(`${backendUrl}/api/image`, {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type": "application/json",S
             },
             body: JSON.stringify({
               imageUrl: imageUrl,
@@ -1100,7 +1102,7 @@ useEffect(() => {
               console.log("Image Response:", data);
               
               // Then post the banner data
-              fetch("https://storevisualservice-test.onrender.com/api/banner_data", {
+              fetch(`${backendUrl}/api/banner_data`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
